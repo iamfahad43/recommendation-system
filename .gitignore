@@ -16,3 +16,4 @@ vnv/
 
 models/*.joblib
 models/*.joblib
+models/cf_svd.joblib
