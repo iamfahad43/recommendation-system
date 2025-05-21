@@ -15,5 +15,5 @@ venv/
 vnv/
 
 models/*.joblib
-models/*.joblib
-models/cf_svd.joblib
+models/*.pkl
+models/*.npy
