@@ -16,3 +16,4 @@ vnv/
 
 .env/models/*.joblib
 models/*.joblib
+models/*.joblib
