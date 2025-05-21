@@ -14,4 +14,4 @@ data/raw/
 venv/
 vnv/
 
-.env/
+.env/models/*.joblib
