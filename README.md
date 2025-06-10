@@ -2,220 +2,198 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> A full-scale data engineering and data science project showcasing an end-to-end recommendation system built on the Olist E-Commerce dataset, complete with ETL pipelines, SQL star schema, collaborative- and content-based models, and interactive Power BI dashboards.
+> A professional end-to-end recommendation system built on the Olist E-Commerce dataset, featuring automated ETL, star-schema analytics in PostgreSQL, collaborative- & content-based models, and five Power BI dashboards.
 
 ---
 
 ## Table of Contents
 
-* [Project Overview](#project-overview)
-* [Dataset](#dataset)
-* [Architecture](#architecture)
-* [Folder Structure](#folder-structure)
-* [Installation](#installation)
-* [ETL Pipeline](#etl-pipeline)
-* [Modeling](#modeling)
-* [Power BI Dashboard](#power-bi-dashboard)
-* [Results](#results)
-* [Future Enhancements](#future-enhancements)
-* [Contributing](#contributing)
-* [License](#license)
+- [Project Overview](#project-overview)  
+- [Dataset](#dataset)  
+- [Architecture](#architecture)  
+- [Folder Structure](#folder-structure)  
+- [Installation](#installation)  
+- [ETL Pipeline](#etl-pipeline)  
+- [Modeling & Generating Recommendations](#modeling--generating-recommendations)  
+- [Power BI Dashboards](#power-bi-dashboards)  
+- [Results](#results)  
+- [Future Enhancements](#future-enhancements)  
+- [Contributing](#contributing)  
+- [Thanks](#thanks)  
 
 ---
 
 ## Project Overview
 
-This repository contains a professional-grade recommendation system built for a real-world e-commerce scenario. It demonstrates:
+This repository contains a full-lifecycle recommendation engine for a real-world e-commerce use case. It demonstrates:
 
-* **Data Engineering**: Automated ETL of raw CSVs into a staging schema, transformation into an analytics star schema in PostgreSQL.
-* **Data Science**: Collaborative filtering (SVD) and content-based recommendation models.
-* **Business Intelligence**: Interactive multi-page Power BI dashboard presenting KPIs, customer segments, and personalized recommendations.
-
-The project is designed for easy setup on a local PC and is fully reproducible end-to-end.
+- **Data Engineering**: Automated ETL of raw CSVs → staging → star schema in PostgreSQL  
+- **Data Science**: Collaborative filtering (SVD) & content-based recommenders  
+- **Business Intelligence**: **Five** interactive Power BI dashboards for KPI tracking and personalized recommendations
 
 ---
 
 ## Dataset
 
-We leverage the [Olist E-Commerce Public Dataset](https://www.kaggle.com/olistbr/brazilian-ecommerce) from Kaggle, which includes:
+I used the [Olist E-Commerce Public Dataset](https://www.kaggle.com/olistbr/brazilian-ecommerce), which includes:
 
-* **Orders** (timestamps, status)
-* **Order items**, **payments**, **reviews**
-* **Customer** demographics
-* **Product** metadata and categories
-* **Seller** locations and geospatial data
-
-This multi-table schema enables rich analytics and recommendation modeling.
+- **Orders**, **Order Items**, **Payments**, **Reviews**  
+- **Customers**, **Products**, **Sellers**, **Geolocation**  
+- Rich temporal & geographic granularity for deep analytics
 
 ---
 
 ## Architecture
 
 ```text
-            +----------------------+      +-------------------+
- Raw CSVs  |  data/raw/olist/      | ---> | staging schema    |
-           +----------------------+      | PostgreSQL        |
-                                            |     
-                                            |     +-------------------+
-                                            +-->  | analytics schema  |
-                                                  | (star schema)     |
-                                                  +-------------------+
-                                                           |
-                                                           v
-                                                    +-------------+
-                                                    | Modeling    |
-                                                    | (Python)    |
-                                                    +-------------+
-                                                           |
-                                                           v
-                                                  +-------------------+
-                                                  | Power BI Reports  |
-                                                  +-------------------+
+  +-------------+        +-------------+       +--------------+
+  |  Raw CSVs   |  ETL   |  Staging    |       | Analytics    |
+  | data/raw/   |----->  | PostgreSQL  |  DML  | star schema  |
+  +-------------+        +-------------+       +--------------+
+                                                         |
+                                                         v
+                                                 +----------------+
+                                                 | Modeling (Py)  |
+                                                 +----------------+
+                                                         |
+                                                         v
+                                              +----------------------+
+                                              | Generate Recs Script |
+                                              +----------------------+
+                                                         |
+                                                         v
+                                               +--------------------+
+                                               | Power BI Dashboards|
+                                               +--------------------+
 ```
 
 ---
 
 ## Folder Structure
-
 ```text
 recommendation-system/
 ├── data/
-│   ├── raw/                # Original Olist CSV files
-│   └── processed/          # Cleaned & joined parquet or CSV files
+│   ├── raw/                  # Olist CSVs
+│   └── processed/            # Cleaned parquet files
 ├── sql/
-│   ├── ddl/                # CREATE TABLE scripts (staging & analytics)
-│   └── dml/                # Transformation SQL (CTAS for analytics)
+│   ├── ddl/                  # CREATE TABLE for staging & analytics
+│   └── dml/                  # CTAS transforms for analytics
 ├── src/
-│   ├── etl.py              # Ingest & transform raw data into Postgres
-│   ├── modeling.py         # Train & evaluate recommendation models
-│   └── utils.py            # DB connector, logging, helpers
-├── notebooks/              # EDA: customer segments, rating distributions
-├── powerbi/                # Power BI .pbix file & usage guide
-├── requirements.txt        # Python dependencies
-└── README.md               # Project documentation
+│   ├── db_utils.py           # DB connection & logging
+│   ├── etl.py                # Ingest & transform raw data into Postgres
+│   ├── load.py               # Load pipeline (Parquet → Postgres)
+│   ├── modeling.py           # Train CF & content models
+│   └── generate_recommendations.py # Top-10 recommendations per user
+├── models/                   # Serialized models (.joblib, JSON)
+├── notebooks/                # EDA scripts & figures
+├── docs/                     # Screenshots & exported images
+├── powerbi/                  # Five .pbix dashboards (01–05)
+│   ├── 01_SalesOverview.pbix
+│   ├── 02_CustomerInsights.pbix
+│   ├── 03_ProductPerformance.pbix
+│   ├── 04_DeliveryAnalysis.pbix
+│   └── 05_RecommendationExplorer.pbix
+├── requirements.txt          # Python dependencies
+└── README.md                 # Project documentation
+
 ```
 
 ---
 
-## Installation
 
-1. **Clone the repository**
+## Installation
+1. **Clone the repo**:
 
    ```bash
    git clone https://github.com/iamfahad43/recommendation-system.git
-   cd recommendation-system
+   cd cd recommendation-system
    ```
 
-2. **Python environment**
+2. **Create a virtual environment & install dependencies**:
 
    ```bash
    python3 -m venv venv
-   source venv/bin/activate
+   source venv/bin/activate        # (or .\venv\Scripts\activate on Windows)
    pip install -r requirements.txt
    ```
 
-3. **Database setup**
+3. **Configure your postgreSQL**:
 
-   ```bash
-   # Create PostgreSQL database
-   createdb olist_db
-
-   # Apply DDL scripts
-   psql olist_db < sql/ddl/create_tables.sql
-   ```
-
-4. **Download and place raw data**
-
-   * Download all CSVs from Kaggle and place them in `data/raw/olist/`.
-
-5. **Run ETL**
-
-   ```bash
-   python src/etl.py
-   ```
-
-6. **Train models**
-
-   ```bash
-   python src/modeling.py
-   ```
-
-7. **Open Power BI report**
-
-   * Open `powerbi/olist_recommendation.pbix` in Power BI Desktop.
-   * Connect to the `analytics` schema in `olist_db`.
+   * Install PostgreSQL locally.
+   * sudo service postgresql start (WSL)
+   * Create a database & user (`olist_db`) and grant privileges.
+   * createdb olist_db (WSL)
+   * psql olist_db < sql/ddl/create_tables.sql
+   * Update `config.yaml` with your host, port, user, password, and database name.
 
 ---
 
 ## ETL Pipeline
+1. **Extract & Transform**:
 
-* **`src/etl.py`**:
+   ```bash
+   python src/etl.py     # (Reads raw CSVs → cleans & writes to data/processed/)
+   ```
 
-  * Reads raw CSVs, casts timestamps, and loads into `staging` schema.
-  * Executes `sql/dml/transform_analytics.sql` to build the `analytics` star schema (fact & dimension tables).
+2. **Load into Postgres**:
 
-* **Staging Schema** mirrors raw data for full auditability.
+   ```bash
+   python src/load.py        # (Loads Parquet → staging.*, then runs CTAS → analytics.*)
+   ```
+---
 
-* **Analytics Schema** uses CTAS to create a fact table (`fact_order_item`) and dimensions (`dim_customers`, `dim_products`, etc.).
+
+## Modeling & Generating Recommendations
+1. **Train Models**:
+
+   ```bash
+   python src/modeling.py     # (Builds SVD CF model (models/cf_svd.joblib))
+                              # (Builds TF-IDF content model & top-N lookup)
+   ```
+
+2. **Generate Top-10 Recommendations**:
+
+   ```bash
+   python src/generate_recommendations.py        # (Creates/truncates analytics.recommendations)
+                                                 # (For each customer, predicts unrated products → top 10 → inserts into Postgres)
+   ```
 
 ---
 
-## Modeling
+## Power BI Dashboards
+1. **powerbi/**:
 
-* **Collaborative Filtering**:
-
-  * Uses [Surprise](https://surprise.readthedocs.io/) SVD on user–product ratings.
-  * Train/test split with RMSE evaluation.
-
-* **Content-Based**:
-
-  * TF-IDF vectorization of product categories.
-  * Cosine similarity for item-to-item recommendations.
-
-Models are serialized under `models/` for downstream production use.
-
----
-
-## Power BI Dashboard
-
-The Power BI report (`powerbi/olist_recommendation.pbix`) contains:
-
-1. **Sales Overview**: Total orders, revenue trends, average basket size.
-2. **Customer Insights**: Order frequency distribution, CLV segmentation.
-3. **Product Analytics**: Top categories by revenue, average review scores.
-4. **Recommendation Explorer**:
-
-   * Parameterized by `customer_id`.
-   * Side-by-side CF vs. content-based top‑N predictions.
-
-Use slicers and KPI cards for interactive analysis. Screenshots are in the `docs/` folder.
-
+   * 01_SalesOverview.pbix                        (KPI cards (orders, sales, AOV, repeat rate) + time-series charts)                        
+   * 02_CustomerInsights.pbix                     (Top customers by orders & spend + distribution of orders per customer)
+   * 03_ProductPerformance.pbix                   (Top categories by revenue & units + price vs review scatter)
+   * 04_DeliveryAnalysis.pbix                     (Delivery delay histogram + on-time delivery KPI + geographic map)
+   * 05_RecommendationExplorer.pbix               (Customer slicer → table of top-10 CF & content-based recommendations)
+   * **If it doen't change:** Refresh each report after running the ETL & recommendation scripts.
+  
 ---
 
 ## Results
-
-* **Baseline RMSE** for SVD: \~0.92 on held-out test set.
-* **Top-10 recommendations** accuracy: Precision\@10 \~ 0.13.
-
-*Screenshots and sample queries can be found in the `docs/` directory.*
+* **Collaborative Filtering RMSE:** ~0.92 on held-out test set
+* **Precision@10:** ~0.13 for the baseline SVD model
+* Screenshots and sample outputs are available in docs/
 
 ---
 
 ## Future Enhancements
-
-* **Workflow Orchestration**: Integrate Apache Airflow for daily ETL and model retraining.
-* **Containerization**: Dockerize services for CI/CD and cloud deployment.
-* **Real-time API**: Serve recommendations via a Flask/FastAPI microservice.
-* **A/B Testing**: Evaluate model variants in production.
+* **Workflow Orchestration:** Apache Airflow or GitHub Actions for scheduled ETL & retraining
+* **Containerization:** Dockerize components for CI/CD and cloud deployment
+* **Real-time API:** Serve recommendations via Flask/FastAPI microservice
+* **A/B Testing:** Evaluate different model versions in production
 
 ---
 
 ## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request.
+Contributions are welcome! Please open an issue or submit a pull request following the existing style.
 
 ---
 
-## License
+## Final Message
+Thank you for your time to see the project and contributions. I'll try my best to respond your queries🥇
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+
